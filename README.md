@@ -36,7 +36,7 @@ brew install lookback
 
 Optional flags:<br>
 `--version` : Print version<br>
-`-h` : Print this help message<br>
+`-h` : Print help menu<br>
 `-v` : Verbose<br>
 `-i` : Ignore folder structure<br>
 `-y` : Side-by-side comparison<br>
