@@ -15,7 +15,7 @@ A Bash utility to compare files and directories.
 
 #### 🛠 Dependencies
 
-* [xxHash](https://github.com/Cyan4973/xxHash) for high-speed checksumming.
+* [xxHash](https://github.com/Cyan4973/xxHash) © 2012-2026 Yann Collet (BSD 2-Clause)
 
 #### 🚀 Installation
 
