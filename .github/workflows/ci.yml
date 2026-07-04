@@ -1,6 +1,6 @@
 ---
 name: CI
-run-name: CI - ${{ github.event.head_commit.message }}
+run-name: CI - ${{ github.event.pull_request.title || github.event.head_commit.message || github.ref_name }}
 "on":
   push:
     branches: [main]
@@ -20,6 +20,7 @@ jobs:
       contents: read
     outputs:
       python-versions: ${{ steps.set-matrix.outputs.versions }}
+      latest-python: ${{ steps.set-matrix.outputs.latest }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -27,18 +28,22 @@ jobs:
           persist-credentials: false
       - name: Extract Python Versions
         id: set-matrix
+        shell: python3 {0}
         run: |
-          # Use a quick inline python snippet to read the exact classifiers from your TOML
-          VERSIONS=$(python3 -c '
-          import tomllib, json
+          # Read the exact supported versions from the pyproject.toml classifiers
+          import tomllib, json, os
+
           with open("pyproject.toml", "rb") as f:
               data = tomllib.load(f)
+
           # Extract numbers from "Programming Language :: Python :: 3.xx"
           classifiers = data.get("project", {}).get("classifiers", [])
           versions = [c.split("::")[-1].strip() for c in classifiers if "Programming Language :: Python :: 3." in c]
-          print(json.dumps(versions))
-          ')
-          echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
+          latest = max(versions, key=lambda v: tuple(map(int, v.split("."))))
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              print(f"versions={json.dumps(versions)}", file=out)
+              print(f"latest={latest}", file=out)
   # JOB 1: Lint and type-check
   lint:
     name: Lint & type-check
@@ -133,7 +138,7 @@ jobs:
       - name: Run test suite
         run: uv run pytest
       - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14'
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == needs.prepare-matrix.outputs.latest-python
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
         with:
           files: coverage.xml
