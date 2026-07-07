@@ -37,7 +37,7 @@ repos:
       - id: validate-pyproject
   # keep uv.lock in sync with pyproject.toml & Dependency security auditing
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.24
+    rev: 0.11.27
     hooks:
       - id: uv-lock
       - id: uv-audit
@@ -89,7 +89,7 @@ repos:
           - "{extends: default, rules: {line-length: {max: 120}, comments: {min-spaces-from-content: 1}}}"
   # GitHub workflow schema validation
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.37.3
+    rev: 0.37.4
     hooks:
       - id: check-github-workflows
         args: ["--verbose"]
